@@ -2,12 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EmployeeApp.Data;
+using EmployeeApp.Data.Entities;
+using EmployeeApp.Repository;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Attribute = EmployeeApp.Data.Entities.Attribute;
 
 namespace EmployeeApp
 {
@@ -23,7 +28,34 @@ namespace EmployeeApp
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllersWithViews();
+            #region DI
+
+            services.AddScoped<IDbContext, EmployeeDbContext>();
+            services.AddScoped<IRepository<Employee>, EfRepository<Employee>>();
+            services.AddScoped<IRepository<Attribute>, EfRepository<Attribute>>();
+            services.AddScoped<IRepository<EmployeeAttribute>, EfRepository<EmployeeAttribute>>();
+
+            #endregion
+
+            #region Db
+
+            services.AddDbContext<EmployeeDbContext>(options =>
+            {
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+            }, ServiceLifetime.Scoped);
+
+
+            #endregion
+
+            #region MVC
+
+            var mvc = services.AddControllersWithViews();
+
+#if (DEBUG)
+            mvc.AddRazorRuntimeCompilation();
+#endif        
+            #endregion
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -50,7 +82,7 @@ namespace EmployeeApp
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{controller=Employees}/{action=Index}/{id?}");
             });
         }
     }
