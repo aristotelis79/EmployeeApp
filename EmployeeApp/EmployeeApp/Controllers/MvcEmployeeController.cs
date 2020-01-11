@@ -7,37 +7,40 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EmployeeApp.Data;
 using EmployeeApp.Data.Entities;
+using EmployeeApp.Services;
+using Microsoft.Extensions.Logging;
 
 namespace EmployeeApp.Controllers
 {
     public class MvcEmployeeController : Controller
     {
         private readonly EmployeeDbContext _context;
+        private readonly ILogger<EmployeeController> _logger;
+        private readonly IEmployeeService _employeeService;
 
-        public MvcEmployeeController(EmployeeDbContext context)
+        public MvcEmployeeController(EmployeeDbContext context, ILogger<EmployeeController> logger, IEmployeeService employeeService)
         {
             _context = context;
+            _logger = logger;
+            _employeeService = employeeService;
         }
 
         // GET: MvcEmployee
         public async Task<IActionResult> Index()
         {
-            var employeeDbContext = await _context.Employee.Include(e => e.EmpSupervisorNavigation)
-                .Include(x=>x.EmployeeAttribute).ToListAsync();
+            var employeeDbContext = await _employeeService.GetAll().ConfigureAwait(false);
             return View(employeeDbContext);
         }
 
         // GET: MvcEmployee/Details/5
-        public async Task<IActionResult> Details(Guid? id)
+        public async Task<IActionResult> Details(Guid id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var employee = await _context.Employee
-                .Include(e => e.EmpSupervisorNavigation)
-                .FirstOrDefaultAsync(m => m.EmpId == id);
+            var employee = await _employeeService.GetById(id).ConfigureAwait(false);
             if (employee == null)
             {
                 return NotFound();
@@ -58,7 +61,7 @@ namespace EmployeeApp.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("EmpId,EmpName,EmpDateOfHire,EmpSupervisor")] Employee employee)
+        public async Task<IActionResult> Create([Bind("EmpName,EmpDateOfHire,EmpSupervisor,AttrName,AttrValue")] Employee employee)
         {
             if (ModelState.IsValid)
             {

@@ -1,54 +1,77 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using EmployeeApp.Data.Entities;
+using EmployeeApp.Models;
+using EmployeeApp.Models.Mappers;
+using EmployeeApp.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
 
 namespace EmployeeApp.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class EmployeeController : ControllerBase
+
+    public class EmployeeController : Controller
     {
-        private readonly ILogger<EmployeeController> _logger;
+        private readonly IEmployeeService _employeeService;
 
-        public EmployeeController(ILogger<EmployeeController> logger)
+
+        public EmployeeController(IEmployeeService employeeService)
         {
-            _logger = logger;
+            _employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
         }
 
-        // GET: api/Employee
         [HttpGet]
-        public IEnumerable<string> Get()
+        public async Task<IActionResult> Index(CancellationToken token = default)
         {
-            return new string[] { "value1", "value2" };
+            var employees = await GetAllEmployees(token);
+            return View(employees.ToViewModel());
         }
 
-        // GET: api/Employee/5
-        [HttpGet("{id}", Name = "Get")]
-        public string Get(int id)
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Details(Guid id, CancellationToken token = default)
         {
-            return "value";
+            var employee = await _employeeService.GetById(id, token)
+                                                    .ConfigureAwait(false);
+            if (employee == null)
+            {
+                return NotFound();
+            }
+
+            return View(employee.ToViewModel());
         }
 
-        // POST: api/Employee
-        [HttpPost]
-        public void Post([FromBody] string value)
+        [HttpGet]
+        public IActionResult Create()
         {
+            return View(new EmployeeViewModel());
         }
 
-        // PUT: api/Employee/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [HttpGet]
+        public async Task<IActionResult> Edit(Guid id, CancellationToken token = default)
         {
+            var employee = await _employeeService.GetById(id,token)
+                                                .ConfigureAwait(false);
+
+            if(employee == null)
+                return new NotFoundResult();
+
+ 
+            ViewData["EmpSupervisor"] = new SelectList(await GetAllEmployees(token),"EmpId", "EmpName", employee.EmpSupervisor);
+
+            return View(employee.ToViewModel());
         }
 
-        // DELETE: api/ApiWithActions/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        private async Task<List<Employee>> GetAllEmployees(CancellationToken token)
         {
+            return await _employeeService.GetAll(token)
+                .ConfigureAwait(false);
         }
+
     }
 }

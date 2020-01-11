@@ -1,38 +1,43 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using EmployeeApp.Data;
 using EmployeeApp.Data.Entities;
+using EmployeeApp.Models;
+using EmployeeApp.Models.Mappers;
+using EmployeeApp.Services;
+using Microsoft.Extensions.Logging;
 
 namespace EmployeeApp.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/employee")]
     [ApiController]
     public class ApiEmployeeController : ControllerBase
     {
-        private readonly EmployeeDbContext _context;
+        private readonly IEmployeeService _employeeService;
+        private readonly ILogger<ApiEmployeeController> _logger;
 
-        public ApiEmployeeController(EmployeeDbContext context)
+
+        public ApiEmployeeController(IEmployeeService employeeService, ILogger<ApiEmployeeController> logger)
         {
-            _context = context;
+            _employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+            _logger = logger?? throw new ArgumentNullException(nameof(logger));
         }
 
-        // GET: api/ApiEmployee
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Employee>>> GetEmployee()
         {
-            return await _context.Employee.ToListAsync();
+            return  await _employeeService.GetAll()
+                                            .ConfigureAwait(false);
         }
 
-        // GET: api/ApiEmployee/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Employee>> GetEmployee(Guid id)
         {
-            var employee = await _context.Employee.FindAsync(id);
+            var employee = await _employeeService.GetById(id)
+                                                    .ConfigureAwait(false);
 
             if (employee == null)
             {
@@ -42,83 +47,122 @@ namespace EmployeeApp.Controllers
             return employee;
         }
 
-        // PUT: api/ApiEmployee/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
+
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutEmployee(Guid id, Employee employee)
+        public async Task<IActionResult> PutEmployee(Guid id, EmployeeViewModel model, CancellationToken token = default)
         {
-            if (id != employee.EmpId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(employee).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!EmployeeExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+                var entity = await _employeeService.GetById(id,token)
+                    .ConfigureAwait(false);
 
-            return NoContent();
+                if(entity == null)
+                    return new NotFoundResult();
+
+                if (model.EmpId != id || !ModelState.IsValid) return Content("not valid");
+
+                var updateModel = await TryUpdateModelAsync(entity,"",
+                        c=>c.EmpName, 
+                        c=> c.EmpDateOfHire,
+                        c=> c.EmpSupervisor,
+                        c => c.EmployeeAttribute)
+                    .ConfigureAwait(false);
+
+                if (updateModel)
+                    await _employeeService.UpdateAsync(entity, token).ConfigureAwait(false);
+                else
+                    return Content("not success update");
+
+
+                return Content("true");
+            }
+            catch(Exception e)
+            {
+                _logger.LogError("Can't edit employee", e);
+                return Content("false");
+            }
+            //if (id != employee.EmpId)
+            //{
+            //    return BadRequest();
+            //}
+
+            //_context.Entry(employee).State = EntityState.Modified;
+
+            //try
+            //{
+            //    await _context.SaveChangesAsync();
+            //}
+            //catch (DbUpdateConcurrencyException)
+            //{
+            //    if (!EmployeeExists(id))
+            //    {
+            //        return NotFound();
+            //    }
+            //    else
+            //    {
+            //        throw;
+            //    }
+            //}
+
+            //return NoContent();
         }
 
-        // POST: api/ApiEmployee
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
+
         [HttpPost]
-        public async Task<ActionResult<Employee>> PostEmployee(Employee employee)
+        public async Task<ActionResult<EmployeeViewModel>> PostEmployee(EmployeeViewModel model)
         {
-            _context.Employee.Add(employee);
             try
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (EmployeeExists(employee.EmpId))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+                var employee = await _employeeService.InsertAsync(model.ToEntity())
+                    .ConfigureAwait(false);
 
-            return CreatedAtAction("GetEmployee", new { id = employee.EmpId }, employee);
+                return employee.ToViewModel();
+                // return CreatedAtAction("GetEmployee", new { id = employee.EmpId }, employee);
+            }
+        
+            catch (Exception e)
+            {
+                _logger.LogError("Can't create employee", e);
+                return new ContentResult
+                {
+                    Content = "Can't create employee",
+                    StatusCode = StatusCodes.Status500InternalServerError
+                };
+            }
         }
 
-        // DELETE: api/ApiEmployee/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Employee>> DeleteEmployee(Guid id)
+        public async Task<IActionResult> Delete(Guid id, CancellationToken token = default)
         {
-            var employee = await _context.Employee.FindAsync(id);
-            if (employee == null)
+            try
             {
-                return NotFound();
+                var entity = await _employeeService.GetById(id,token)
+                    .ConfigureAwait(false);
+
+                if(entity == null) return new ContentResult
+                {
+                    Content = "Didn't find it",
+                    StatusCode = StatusCodes.Status404NotFound
+                };
+
+                await _employeeService.DeleteAsync(entity, token)
+                    .ConfigureAwait(false);
+
+                return new ContentResult
+                {
+                    Content = "deleted",
+                    StatusCode = StatusCodes.Status205ResetContent
+                };
             }
-
-            _context.Employee.Remove(employee);
-            await _context.SaveChangesAsync();
-
-            return employee;
-        }
-
-        private bool EmployeeExists(Guid id)
-        {
-            return _context.Employee.Any(e => e.EmpId == id);
+            catch(Exception e)
+            {
+                _logger.LogError("Can't delete employee", e);
+                return new ContentResult
+                {
+                    Content = "Can't delete employee",
+                    StatusCode = StatusCodes.Status500InternalServerError
+                };
+            }
         }
     }
 }

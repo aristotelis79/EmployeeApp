@@ -15,19 +15,15 @@ namespace EmployeeApp.Controllers
     public class MvcAttributeController : Controller
     {
         private readonly EmployeeDbContext _context;
-        private readonly IRepository<Employee> _employeeRepository;
 
-        public MvcAttributeController(EmployeeDbContext context, IRepository<Employee> employeeRepository)
+        public MvcAttributeController(EmployeeDbContext context)
         {
             _context = context;
-            _employeeRepository = employeeRepository;
         }
 
         // GET: MvcAttribute
         public async Task<IActionResult> Index()
         {
-            //var employeeRepository = _employeeRepository.Table.ToListAsync();
-            //return View(await employeeRepository.ToListAsync()); 
             return View(await _context.Attribute.ToListAsync());
         }
 

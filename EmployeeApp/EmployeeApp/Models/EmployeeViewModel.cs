@@ -12,6 +12,6 @@ namespace EmployeeApp.Models
         public Guid? EmpSupervisorId { get; set; }
         public EmployeeViewModel EmpSupervisor { get; set; }
 
-        public IList<AttributeViewModel> EmployeeAttributes { get; set; } = new List<AttributeViewModel>();
+        public IList<AttributeViewModel> EmployeeAttributes { get; set; } = new List<AttributeViewModel> {new AttributeViewModel()};
     }
 }

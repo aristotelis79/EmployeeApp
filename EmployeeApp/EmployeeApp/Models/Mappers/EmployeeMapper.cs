@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using EmployeeApp.Data.Entities;
+using Attribute = EmployeeApp.Data.Entities.Attribute;
 
 namespace EmployeeApp.Models.Mappers
 {
@@ -16,14 +18,15 @@ namespace EmployeeApp.Models.Mappers
                 EmpSupervisor = entity.EmpSupervisor != null ? entity.EmpSupervisorNavigation.ToViewModel(): null,
             };
 
-            //foreach (var p in entity.EmployeeAttribute)
-            //{
-            //    model.EmployeeAttributes.Add(new AttributeViewModel
-            //    {
-            //        PhoneType = p.PhoneType,
-            //        PhoneNumber = p.PhoneNumber
-            //    });
-            //}
+            foreach (var p in entity.EmployeeAttribute)
+            {
+                model.EmployeeAttributes.Add(new AttributeViewModel
+                {
+                    AttrId = p.EmpAttrAttribute.AttrId,
+                    AttrName = p.EmpAttrAttribute.AttrName,
+                    AttrValue = p.EmpAttrAttribute.AttrValue
+                });
+            }
 
             return model;
         }
@@ -37,23 +40,36 @@ namespace EmployeeApp.Models.Mappers
             return model;
         }
 
-        //public static Employee MapTo(this EmployeeViewModel model)
-        //{
-        //    var entity = new Employee
-        //    {
-        //        FullName = model.FullName,
-        //        Email = model.Email,
-        //        Address = model.Address
-        //    };
-        //    foreach (var p in model.Phones)
-        //    {
-        //        entity.Phones.Add(new Phone
-        //        {
-        //            PhoneType = p.PhoneType,
-        //            PhoneNumber = p.PhoneNumber
-        //        });
-        //    }
-        //    return entity;
-        //} 
+        public static Employee ToEntity(this EmployeeViewModel model)
+        {
+            var empId = model.EmpId != null && model.EmpId != Guid.Empty 
+                                                                        ? model.EmpId 
+                                                                        : Guid.NewGuid();
+
+            var entity = new Employee
+            {
+                EmpId = empId,
+                EmpName = model.EmpName,
+                EmpDateOfHire = model.EmpDateOfHire,
+                EmpSupervisor = model.EmpSupervisorId
+            };
+            foreach (var p in model.EmployeeAttributes)
+            {
+                entity.EmployeeAttribute.Add(new EmployeeAttribute
+                {
+                    EmpAttrEmployeeId = empId,
+                    EmpAttrAttributeId = p.AttrId,
+                    EmpAttrAttribute = new Attribute
+                    {
+                        AttrId = p.AttrId != null && p.AttrId != Guid.Empty 
+                                                                            ? p.AttrId
+                                                                            : Guid.NewGuid(),
+                        AttrName = p.AttrName,
+                        AttrValue = p.AttrValue
+                    }
+                });
+            }
+            return entity;
+        }
     }
 }

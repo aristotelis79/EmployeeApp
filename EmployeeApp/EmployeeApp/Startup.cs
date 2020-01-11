@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using EmployeeApp.Data;
 using EmployeeApp.Data.Entities;
 using EmployeeApp.Repository;
+using EmployeeApp.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -34,6 +35,7 @@ namespace EmployeeApp
             services.AddScoped<IRepository<Employee>, EfRepository<Employee>>();
             services.AddScoped<IRepository<Attribute>, EfRepository<Attribute>>();
             services.AddScoped<IRepository<EmployeeAttribute>, EfRepository<EmployeeAttribute>>();
+            services.AddScoped<IEmployeeService, EmployeeService>();
 
             #endregion
 
@@ -82,7 +84,7 @@ namespace EmployeeApp
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Employees}/{action=Index}/{id?}");
+                    pattern: "{controller=mvcemployee}/{action=Index}/{id?}");
             });
         }
     }
