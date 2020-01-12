@@ -15,7 +15,7 @@ namespace EmployeeApp.Models.Mappers
                 EmpName = entity.EmpName,
                 EmpDateOfHire = entity.EmpDateOfHire,
                 EmpSupervisorId = entity.EmpSupervisor,
-                EmpSupervisor = entity.EmpSupervisor != null ? entity.EmpSupervisorNavigation.ToViewModel(): null,
+                EmpSupervisorName = entity.EmpSupervisorNavigation?.EmpName
             };
 
             foreach (var p in entity.EmployeeAttribute)

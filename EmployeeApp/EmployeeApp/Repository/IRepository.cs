@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EmployeeApp.Data.Entities;
@@ -13,12 +14,16 @@ namespace EmployeeApp.Repository
     {
         IQueryable<TEntity> Table { get; }
 
-        Task<TEntity> GetById(object id, CancellationToken token = default);
+        Task<TEntity> GetByIdAsync(object id, CancellationToken token = default);
 
         Task<int> InsertAsync(TEntity entity, CancellationToken token = default);
 
         Task<int> UpdateAsync(TEntity entity, CancellationToken token = default);
 
-        Task<int> DeleteAsync(TEntity entity, CancellationToken token = default);
+        Task<int> DeleteAsync(TEntity entity, bool saveChanges= true, CancellationToken token = default);
+
+        Task<int> DeleteAsync(IEnumerable<TEntity> entities, bool saveChanges= true, CancellationToken token = default);
+
+        Task<int> SaveChangesAsync(CancellationToken token = default);
     }
 }

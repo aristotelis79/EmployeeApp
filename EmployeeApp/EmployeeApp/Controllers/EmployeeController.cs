@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using EmployeeApp.Components;
 using EmployeeApp.Data.Entities;
 using EmployeeApp.Models;
 using EmployeeApp.Models.Mappers;
@@ -33,23 +34,23 @@ namespace EmployeeApp.Controllers
         }
 
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Details(Guid id, CancellationToken token = default)
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] EmployeeViewModel model, CancellationToken token = default)
         {
-            var employee = await _employeeService.GetById(id, token)
-                                                    .ConfigureAwait(false);
-            if (employee == null)
-            {
-                return NotFound();
-            }
+            var employee = await _employeeService.InsertAsync(model.ToEntity(), token)
+                .ConfigureAwait(false);
 
-            return View(employee.ToViewModel());
+            return Json(employee.ToViewModel());
         }
 
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Create(CancellationToken token = default)
         {
-            return View(new EmployeeViewModel());
+            ViewData["EmpSupervisor"] = new SelectList(await GetAllEmployees(token),"EmpId", "EmpName");
+            var model = EmployeeViewModel.New();
+            model.EmployeeAttributes.Add(new AttributeViewModel());
+            return View(model);
+            return  ViewComponent("Employee",new {model = EmployeeViewModel.New()});
         }
 
         [HttpGet]
@@ -62,9 +63,8 @@ namespace EmployeeApp.Controllers
                 return new NotFoundResult();
 
  
-            ViewData["EmpSupervisor"] = new SelectList(await GetAllEmployees(token),"EmpId", "EmpName", employee.EmpSupervisor);
 
-            return View(employee.ToViewModel());
+            return  ViewComponent("Employee",new {model = employee.ToViewModel()});
         }
 
         private async Task<List<Employee>> GetAllEmployees(CancellationToken token)

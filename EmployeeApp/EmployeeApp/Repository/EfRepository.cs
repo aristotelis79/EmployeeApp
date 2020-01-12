@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -42,12 +43,11 @@ namespace EmployeeApp.Repository
 
         #region Methods
 
-        public virtual async Task<TEntity> GetById(object id, CancellationToken token = default)
+        public virtual async Task<TEntity> GetByIdAsync(object id, CancellationToken token = default)
         {
             return await Entities.FindAsync(new object[]{id},token)
                                     .ConfigureAwait(false);
         }
-
 
         public virtual async Task<int> InsertAsync(TEntity entity, CancellationToken token = default)
         {
@@ -81,7 +81,7 @@ namespace EmployeeApp.Repository
             }
         }
 
-        public virtual  async Task<int> DeleteAsync(TEntity entity, CancellationToken token = default)
+        public virtual  async Task<int> DeleteAsync(TEntity entity, bool saveChanges = true,  CancellationToken token = default)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
@@ -89,6 +89,7 @@ namespace EmployeeApp.Repository
             try
             {
                 Entities.Remove(entity);
+                if (!saveChanges) return 0;
                 return await _context.SaveChangesAsync(token).ConfigureAwait(false);
             }
             catch (DbUpdateException exception)
@@ -97,6 +98,28 @@ namespace EmployeeApp.Repository
             }
         }
         
+        public virtual async Task<int> DeleteAsync(IEnumerable<TEntity> entities, bool saveChanges = true, CancellationToken token = default)
+        {
+            if (entities == null)
+                throw new ArgumentNullException(nameof(entities));
+
+            try
+            {
+                Entities.RemoveRange(entities);
+                if (!saveChanges) return 0;
+                return await _context.SaveChangesAsync(token).ConfigureAwait(false);
+            }
+            catch (DbUpdateException exception)
+            {
+                throw new Exception(GetFullErrorTextAndRollbackEntityChanges(exception), exception);
+            }
+        }
+
+        public virtual async Task<int> SaveChangesAsync(CancellationToken token = default)
+        {
+            return await _context.SaveChangesAsync(token).ConfigureAwait(false);
+        }
+
         #endregion
 
         #region Utilities

@@ -1,0 +1,51 @@
+﻿@model EmployeeApp.Models.EmployeeViewModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<hr />
+<form id="employee-form">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="EmpId" />
+    <div class="row">
+        <div class="col-lg-4 col-md-6 col-sm-12 form-group">
+            <label asp-for="EmpName"></label>
+            <input asp-for="EmpName" class="form-control" />
+            <span asp-validation-for="EmpName" class="text-danger"></span>
+        </div>
+        <div class="col-lg-4 col-md-6 col-sm-12 form-group">
+            <label asp-for="EmpDateOfHire"></label>
+            <input asp-for="EmpDateOfHire" class="form-control" />
+            <span asp-validation-for="EmpDateOfHire" class="text-danger"></span>
+        </div>
+        <div class="col-lg-4 col-md-6 col-sm-12 form-group">
+            <label asp-for="EmpSupervisorId"></label>
+            <select asp-for="EmpSupervisorId" class="form-control" asp-items="ViewBag.EmpSupervisor"></select>
+            <span asp-validation-for="EmpSupervisorId" class="text-danger"></span>
+        </div>
+        @for (var a = 0; a < Model.EmployeeAttributes.Count; a++)
+        {
+            <input type="hidden" asp-for="@Model.EmployeeAttributes[a].AttrId" />
+            <div class="col-lg-3 col-md-6 col-sm-12 form-group">
+                <label asp-for="@Model.EmployeeAttributes[a].AttrName"></label>
+                <input asp-for="@Model.EmployeeAttributes[a].AttrName" class="form-control" />
+                <span asp-validation-for="@Model.EmployeeAttributes[a].AttrName" class="text-danger"></span>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-12 form-group">
+                <label asp-for="@Model.EmployeeAttributes[a].AttrValue"></label>
+                <input asp-for="@Model.EmployeeAttributes[a].AttrValue" class="form-control" />
+                <span asp-validation-for="@Model.EmployeeAttributes[a].AttrValue" class="text-danger"></span>
+            </div>
+        }
+    </div>
+</form>
+<div class="row">
+    <div class="col form-group">
+        <button class="btn btn-primary" employee-action="create">Save</button>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

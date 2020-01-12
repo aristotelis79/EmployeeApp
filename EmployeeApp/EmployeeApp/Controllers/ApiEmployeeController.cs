@@ -27,16 +27,16 @@ namespace EmployeeApp.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Employee>>> GetEmployee()
+        public async Task<ActionResult<IEnumerable<EmployeeViewModel>>> Get(CancellationToken token = default)
         {
-            return  await _employeeService.GetAll()
-                                            .ConfigureAwait(false);
+            return  (await _employeeService.GetAll(token)
+                                            .ConfigureAwait(false)).ToViewModel();
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Employee>> GetEmployee(Guid id)
+        public async Task<ActionResult<EmployeeViewModel>> Get(Guid id, CancellationToken token = default)
         {
-            var employee = await _employeeService.GetById(id)
+            var employee = await _employeeService.GetById(id,token)
                                                     .ConfigureAwait(false);
 
             if (employee == null)
@@ -44,12 +44,12 @@ namespace EmployeeApp.Controllers
                 return NotFound();
             }
 
-            return employee;
+            return employee.ToViewModel();
         }
 
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutEmployee(Guid id, EmployeeViewModel model, CancellationToken token = default)
+        public async Task<IActionResult> Edit(Guid id, EmployeeViewModel model, CancellationToken token = default)
         {
             try
             {
@@ -107,9 +107,8 @@ namespace EmployeeApp.Controllers
             //return NoContent();
         }
 
-
         [HttpPost]
-        public async Task<ActionResult<EmployeeViewModel>> PostEmployee(EmployeeViewModel model)
+        public async Task<ActionResult<EmployeeViewModel>> Create(EmployeeViewModel model)
         {
             try
             {
@@ -117,7 +116,6 @@ namespace EmployeeApp.Controllers
                     .ConfigureAwait(false);
 
                 return employee.ToViewModel();
-                // return CreatedAtAction("GetEmployee", new { id = employee.EmpId }, employee);
             }
         
             catch (Exception e)
