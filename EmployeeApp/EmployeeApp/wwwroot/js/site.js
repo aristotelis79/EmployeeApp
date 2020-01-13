@@ -11,7 +11,6 @@
 
     //Init employee Actions
     employeesActions.Init(employeesTable);
-    
 });
 
 const Helpers = {
@@ -67,6 +66,7 @@ const employeesActions = {
 
     new: function () {
         employeesActions.load("/employee/create/");
+        attributeActions.Init(1);//TODO
     },
 
     details: function () {
@@ -75,6 +75,7 @@ const employeesActions = {
 
     edit: function () {
         employeesActions.load("/employee/edit/"+ $(this).attr('data-id'));
+        attributeActions.Init($(this).attr('[attributes-number]'));
     },
 
     create: function () {
@@ -116,5 +117,44 @@ const employeesActions = {
                 }
             }
         }).done(function(response, textStatus, jqXHR){});
+    }
+};
+
+const attributeActions = {
+    Init: function(count) {
+        this.count = count;
+        $("#employee-actions").on("click","#add-attribute", attributeActions.addAttribute);
+        $("#employee-actions").on('click','[attribute-action="delete"]', attributeActions.deleteAttribute);
+
+        attributeActions.disablePreviousDeleteButtons();
+    },
+    count: 0,
+    addAttribute: function() {
+        const $template = $("#attribute-template").clone();
+
+        const $attributeItemHtml = $template.html().replace(/\{0}/g, attributeActions.count);
+
+        $("#additional-attribute").append($attributeItemHtml);
+
+        attributeActions.count += 1;
+
+        attributeActions.disablePreviousDeleteButtons();
+    },
+    deleteAttribute: function() {
+        var attribute = $(this).data("attributeid");
+        $("#" + attribute).remove();
+
+        attributeActions.count -= 1;
+
+        attributeActions.disablePreviousDeleteButtons();
+    },
+    disablePreviousDeleteButtons: function() {
+        $('[attribute-action="delete"]').each(function() {
+            if ($(this).data("number") < attributeActions.count - 1) {
+                $(this).attr("disabled", true);
+            } else {
+                $(this).attr("disabled", false);
+            }
+        });
     }
 };

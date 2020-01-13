@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<EmployeeApp.Models.EmployeeViewModel>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Employees";
 }
 
 <table id="employees-table" class="table table-striped" style="width: 100%">
@@ -21,24 +21,13 @@
                 <td>@m.EmpDateOfHire</td>
                 <td>@m.EmpSupervisorName</td>
                 <td>
-                    <button class="btn btn-info" employee-action="details"  data-id="@m.EmpId">Details</button>
-                    <button class="btn btn-warning" employee-action="edit" data-id="@m.EmpId">Edit</button>
-                    <button class="btn btn-danger" employee-action="delete" data-id="@m.EmpId">Delete</button>
+                    <button class="btn btn-info" employee-action="details" attributes-number="@m.EmployeeAttributes.Count"  data-id="@m.EmpId">Details</button>
+                    <button class="btn btn-warning" employee-action="edit" attributes-number="@m.EmployeeAttributes.Count"  data-id="@m.EmpId">Edit</button>
+                    <button class="btn btn-danger" employee-action="delete" attributes-number="@m.EmployeeAttributes.Count" data-id="@m.EmpId">Delete</button>
                 </td>
             </tr>
         }
     </tbody>
 </table>
-@*<button type="button" id="edit-employee" class="btn btn-info">
-    Employee
-</button>*@
-<div id="employee-actions">
-    @*<vc:employee token="default" />*@
-    @*@await Component.InvokeAsync("Employee")*@
-</div>
 
-<script>
-    $("#edit-employee").click(function(){
-        $("#employee-actions").load("@Url.Action("Edit", new { id = "561e2d88-a747-460f-99e1-cfb1d3d8ca5c" })");
-    });
-</script>
+<div id="employee-actions"></div>

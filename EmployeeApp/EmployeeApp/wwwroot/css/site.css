@@ -83,3 +83,12 @@ th, td {
 .center {
     margin: auto;
 }
+
+.hidden {
+    display: none;
+}
+
+#additional-attribute {
+    width: 100%;
+    padding: 15px; 0;
+}
