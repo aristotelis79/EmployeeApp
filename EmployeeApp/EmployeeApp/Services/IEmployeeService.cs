@@ -13,5 +13,6 @@ namespace EmployeeApp.Services
         Task<Employee> InsertAsync(Employee employee,  CancellationToken token = default);
         Task<bool> DeleteAsync(Employee entity, CancellationToken token);
         Task<bool> UpdateAsync(Employee entity, CancellationToken token);
+        Task<string> GetEmployeNameById(Guid emId, CancellationToken token);
     }
 }

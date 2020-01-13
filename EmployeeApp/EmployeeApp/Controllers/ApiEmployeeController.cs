@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using EmployeeApp.Data.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using EmployeeApp.Models;
@@ -55,12 +56,8 @@ namespace EmployeeApp.Controllers
             {
                 var employee = await _employeeService.InsertAsync(model.ToEntity(), token).ConfigureAwait(false);
                 
-                if (model.EmpSupervisorId != null && model.EmpSupervisorId != Guid.Empty)
-                    model.EmpSupervisorName =
-                        (await _employeeService.GetById((Guid) (model.EmpSupervisorId), token).ConfigureAwait(false))
-                        ?.EmpSupervisorNavigation.EmpName;
-                
-                
+                await GetSupervisorName(model, token);
+
                 return Created($"{_route}{employee.EmpId}", employee.ToViewModel());
             }
         
@@ -75,31 +72,23 @@ namespace EmployeeApp.Controllers
             }
         }
 
+
         [HttpPut("{id}")]
         public async Task<IActionResult> Edit(Guid id, EmployeeViewModel model, CancellationToken token = default)
         {
             try
             {
-                var entity = await _employeeService.GetById(id,token)
+                var employee = await _employeeService.GetById(id,token)
                     .ConfigureAwait(false);
 
-                if(entity == null)
+                if(employee == null)
                     return new NotFoundResult();
 
                 if (model.EmpId != id || !ModelState.IsValid) return Content("not valid");
 
-                var updateModel = await TryUpdateModelAsync(entity,"",
-                        c=>c.EmpName, 
-                        c=> c.EmpDateOfHire,
-                        c=> c.EmpSupervisor,
-                        c => c.EmployeeAttribute)
-                    .ConfigureAwait(false);
+                await _employeeService.UpdateAsync(employee.UpdateEmployeeEntity(model), token).ConfigureAwait(false);
 
-                if (updateModel)
-                    await _employeeService.UpdateAsync(entity, token).ConfigureAwait(false);
-                else
-                    return Content("not success update");
-
+                await GetSupervisorName(model, token);
 
                 return Created($"{_route}{id}", model);
             }
@@ -143,6 +132,13 @@ namespace EmployeeApp.Controllers
                     StatusCode = StatusCodes.Status500InternalServerError
                 };
             }
+        }
+
+        private async Task GetSupervisorName(EmployeeViewModel model, CancellationToken token)
+        {
+            if (model.EmpSupervisorId != null)
+                model.EmpName = await _employeeService.GetEmployeNameById((Guid) model.EmpSupervisorId, token)
+                    .ConfigureAwait(false);
         }
     }
 }

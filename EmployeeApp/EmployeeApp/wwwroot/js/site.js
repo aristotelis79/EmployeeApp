@@ -33,18 +33,23 @@ const employeesTable = {
     Init: function(table) {
         employeesTable._table = table;
     },
-    addRow: function(data) {
+    updateRow: function(data) {
+
+        const id = data['empId'];
+
+        employeesTable.removeRow(id);
+
         employeesTable._table.row.add([
             data["empName"],
             data["empDateOfHire"],
             data["empSupervisorName"],
-            `<button class="btn btn-info" employee-action="details" data-id="${data['empId']}">Details</button>
-                    <button class="btn btn-warning" employee-action="edit" data-id="${data['empId']}">Edit</button>
-                    <button class="btn btn-danger" employee-action="delete" data-id="${data['empId']}">Delete</button>`
+            `<button class="btn btn-info" employee-action="details" data-id="${id}">Details</button>
+                    <button class="btn btn-warning" employee-action="edit" data-id="${id}">Edit</button>
+                    <button class="btn btn-danger" employee-action="delete" data-id="${id}">Delete</button>`
         ] ).draw();
     },
     removeRow: function(id) {
-        employeesTable._table.rows( $(`[data-id="${id}"]`).parents('tr') ).remove().draw();
+        employeesTable._table.rows($(`[data-id="${id}"]`).parents('tr')).remove().draw();
     }
 }
 
@@ -57,8 +62,7 @@ const employeesActions = {
         $('#employees-table').on('click', '[employee-action="edit"]', this.edit);
         $('#employees-table').on('click','[employee-action="delete"]', this.delete);
         $('#employee-actions').on('click', '[employee-action="create"]', this.create);
-        $('#employee-actions').on('click', '[employee-action="update"]', this.update($(this).attr('data-id')));//TODO
-
+        $('#employee-actions').on('click', '[employee-action="update"]', this.update);
     },
 
     new: function () {
@@ -78,9 +82,9 @@ const employeesActions = {
         employeesActions.ajax('post', '/api/employees/', data);
     },
 
-    update: function (id) {
+    update: function () {
         let data = $("#employee-form").serializeToJSON({associativeArrays: false});
-        employeesActions.ajax('put', '/api/employees/' + id, data);
+        employeesActions.ajax('put', '/api/employees/' + data["EmpId"], data);
     },
 
     delete: function () {
@@ -102,19 +106,15 @@ const employeesActions = {
             data: JSON.stringify(data),
             url: url,
             success: function (response, textStatus, jqXHR) {
-                debugger;
+                if (jqXHR.status === 201) {
+                    employeesTable.updateRow(response);
+                }
             },
             error: function (jqXHR, textStatus, errorThrown) {
-
-                debugger;
                 if (jqXHR.status === 205) {
                     employeesTable.removeRow(Helpers.getGuid(jqXHR.responseText));
                 }
             }
-        }).done(function(response, textStatus, jqXHR){
-            if (jqXHR.status === 201) {
-                employeesTable.addRow(response);
-            }
-        });
+        }).done(function(response, textStatus, jqXHR){});
     }
 };

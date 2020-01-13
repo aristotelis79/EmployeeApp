@@ -40,15 +40,18 @@ namespace EmployeeApp.Services
 
         public async Task<Employee> InsertAsync(Employee employee,  CancellationToken token = default)
         {
+            CheckForEmptyIds(employee);
+
             return (await _employeeRepository.InsertAsync(employee, token)
                                             .ConfigureAwait(false)) > 0
                                                                         ? employee
                                                                         : null;
         }
 
-
         public async Task<bool> UpdateAsync(Employee employee, CancellationToken token)
         {
+            CheckForEmptyIds(employee);
+
             return (await _employeeRepository.UpdateAsync(employee, token)
                        .ConfigureAwait(false)) > 0;
 
@@ -66,6 +69,25 @@ namespace EmployeeApp.Services
             await Task.WhenAll(deleteAttributes, deleteEmployee).ConfigureAwait(false);
 
             return await _employeeRepository.SaveChangesAsync(token).ConfigureAwait(false) > 0;
+        }
+
+        public async Task<string> GetEmployeNameById(Guid emId, CancellationToken token)
+        {
+            return (await GetById(emId, token).ConfigureAwait(false))
+                ?.EmpSupervisorNavigation.EmpName;
+        }
+
+        
+        private static void CheckForEmptyIds(Employee employee)
+        {
+            if (employee.EmpId == Guid.Empty
+                || employee.EmpSupervisor == Guid.Empty
+                || employee.EmployeeAttribute.Any(x =>
+                    x.EmpAttrAttributeId == Guid.Empty || x.EmpAttrEmployeeId == Guid.Empty)
+                || employee.EmployeeAttribute.Any(x => x.EmpAttrAttribute.AttrId == Guid.Empty))
+            {
+                throw new ArgumentException("Not valid Id for employee or an Attribute");
+            }
         }
     }
 }
