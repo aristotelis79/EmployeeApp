@@ -4,8 +4,8 @@
     ViewData["Title"] = "Index";
 }
 
-<table id="employees-table" style="width: 100%">
-    <thead>
+<table id="employees-table" class="table table-striped" style="width: 100%">
+    <thead class="thead-dark">
         <tr>
             <th>@Html.DisplayNameFor(model => model.EmpName)</th>
             <th>@Html.DisplayNameFor(model => model.EmpDateOfHire.Date)</th>

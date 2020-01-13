@@ -1,6 +1,5 @@
 ﻿@model EmployeeApp.Models.EmployeeViewModel
 
-<hr />
 <form id="employee-form">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <input type="hidden" asp-for="EmpId" />
@@ -24,7 +23,7 @@
         {
             <input type="hidden" asp-for="@Model.EmployeeAttributes[a].AttrId" />
             <div class="col-lg-3 col-md-6 col-sm-12 form-group">
-                <input asp-for="@Model.EmployeeAttributes[a].AttrName" class="form-control" />
+                <input asp-for="@Model.EmployeeAttributes[a].AttrName" class="form-control blue-border" />
                 <span asp-validation-for="@Model.EmployeeAttributes[a].AttrName" class="text-danger"></span>
             </div>
             <div class="col-lg-3 col-md-6 col-sm-12 form-group">

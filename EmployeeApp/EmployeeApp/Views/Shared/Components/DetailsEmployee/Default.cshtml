@@ -5,28 +5,30 @@
 }
 
 <hr />
-    <input type="hidden" asp-for="EmpId" />
-    <div class="row">
-        <div class="col-lg-4 col-md-6 col-sm-12 form-group">
-            <label asp-for="EmpName"></label>
-            <input asp-for="EmpName" class="form-control" disabled/>
-        </div>
-        <div class="col-lg-4 col-md-6 col-sm-12 form-group">
-            <label asp-for="EmpDateOfHire"></label>
-            <input type="date" asp-for="EmpDateOfHire" class="form-control" disabled/>
-        </div>
-        <div class="col-lg-4 col-md-6 col-sm-12 form-group">
-            <label asp-for="EmpSupervisorName"></label>
-            <input asp-for="EmpSupervisorName" class="form-control"disabled/>
-        </div>
-        @foreach (var t in Model.EmployeeAttributes)
-        {
-            <input type="hidden" asp-for="@t.AttrId" />
-            <div class="col-lg-3 col-md-6 col-sm-12 form-group">
-                <input asp-for="@t.AttrName" class="form-control" disabled/>
-            </div>
-            <div class="col-lg-3 col-md-6 col-sm-12 form-group">
-                <input asp-for="@t.AttrValue" class="form-control" disabled/>
-            </div>
-        }
+<h2>@Model.EmpName</h2>
+
+<input type="hidden" asp-for="EmpId" />
+<div class="row">
+    <div class="col-lg-4 col-md-6 col-sm-12 form-group">
+        <label asp-for="EmpName"></label>
+        <input asp-for="EmpName" class="form-control" disabled />
     </div>
+    <div class="col-lg-4 col-md-6 col-sm-12 form-group">
+        <label asp-for="EmpDateOfHire"></label>
+        <input type="date" asp-for="EmpDateOfHire" class="form-control" disabled />
+    </div>
+    <div class="col-lg-4 col-md-6 col-sm-12 form-group">
+        <label asp-for="EmpSupervisorName"></label>
+        <input asp-for="EmpSupervisorName" class="form-control" disabled />
+    </div>
+    @for (var a = 0; a < Model.EmployeeAttributes.Count; a++)
+    {
+        <input type="hidden" asp-for="@Model.EmployeeAttributes[a].AttrId" />
+        <div class="col-lg-3 col-md-6 col-sm-12 form-group">
+            <input asp-for="@Model.EmployeeAttributes[a].AttrName" class="form-control blue-border" disabled />
+        </div>
+        <div class="col-lg-3 col-md-6 col-sm-12 form-group">
+            <input asp-for="@Model.EmployeeAttributes[a].AttrValue" class="form-control" disabled />
+        </div>
+    }
+</div>
