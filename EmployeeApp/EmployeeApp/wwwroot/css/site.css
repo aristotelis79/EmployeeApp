@@ -79,3 +79,7 @@ th, td {
 .blue-border {
     border: 1px solid blue;
 }
+
+.center {
+    margin: auto;
+}
