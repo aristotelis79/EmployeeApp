@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace EmployeeApp.Models
 {
@@ -15,11 +16,20 @@ namespace EmployeeApp.Models
         }
 
         public Guid EmpId { get; set; }
+        
+        //[Required]
+        [DisplayName("Employee Name")]
         public string EmpName { get; set; }
+        
+        [DisplayName("Date of Hire")]
+        [Required]
+        [DataType(DataType.Date)]
         public DateTime EmpDateOfHire { get; set; }
 
         [DisplayName("Supervisor")]
         public Guid? EmpSupervisorId { get; set; }
+
+        [DisplayName("Supervisor Name")]
         public string EmpSupervisorName { get; set; }
 
         public IList<AttributeViewModel> EmployeeAttributes { get; set; } = new List<AttributeViewModel>();

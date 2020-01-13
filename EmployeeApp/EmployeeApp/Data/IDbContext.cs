@@ -5,9 +5,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EmployeeApp.Data
 {
-    /// <summary>
-    /// Represents DB context
-    /// </summary>
     public partial interface IDbContext
     {
         DbSet<TEntity> Set<TEntity>() where TEntity : BaseEntity;

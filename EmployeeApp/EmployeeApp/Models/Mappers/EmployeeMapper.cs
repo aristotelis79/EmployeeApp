@@ -51,7 +51,7 @@ namespace EmployeeApp.Models.Mappers
                 EmpId = empId,
                 EmpName = model.EmpName,
                 EmpDateOfHire = model.EmpDateOfHire,
-                EmpSupervisor = model.EmpSupervisorId
+                EmpSupervisor = model.EmpSupervisorId == null || model.EmpSupervisorId == Guid.Empty ? null : model.EmpSupervisorId
             };
             foreach (var p in model.EmployeeAttributes)
             {

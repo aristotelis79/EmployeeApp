@@ -11,11 +11,11 @@ using Microsoft.Extensions.Logging;
 
 namespace EmployeeApp.Controllers
 {
-    [Route("api/employee")]
+    [Route("api/employees")]
     [ApiController]
     public class ApiEmployeeController : ControllerBase
     {
-        private const string _route = "/api/employee/";
+        private const string _route = "/api/employees/";
 
         private readonly IEmployeeService _employeeService;
         private readonly ILogger<ApiEmployeeController> _logger;
@@ -48,6 +48,32 @@ namespace EmployeeApp.Controllers
             return Ok(employee.ToViewModel());
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Create(EmployeeViewModel model, CancellationToken token = default)
+        {
+            try
+            {
+                var employee = await _employeeService.InsertAsync(model.ToEntity(), token).ConfigureAwait(false);
+                
+                if (model.EmpSupervisorId != null && model.EmpSupervisorId != Guid.Empty)
+                    model.EmpSupervisorName =
+                        (await _employeeService.GetById((Guid) (model.EmpSupervisorId), token).ConfigureAwait(false))
+                        ?.EmpSupervisorNavigation.EmpName;
+                
+                
+                return Created($"{_route}{employee.EmpId}", employee.ToViewModel());
+            }
+        
+            catch (Exception e)
+            {
+                _logger.LogError("Can't create employee", e);
+                return new ContentResult
+                {
+                    Content = "Can't create employee",
+                    StatusCode = StatusCodes.Status500InternalServerError
+                };
+            }
+        }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Edit(Guid id, EmployeeViewModel model, CancellationToken token = default)
@@ -84,27 +110,6 @@ namespace EmployeeApp.Controllers
             }
         }
 
-        [HttpPost("{model}")]
-        public async Task<IActionResult> Create(EmployeeViewModel model, CancellationToken token = default)
-        {
-            try
-            {
-                var employee = await _employeeService.InsertAsync(model.ToEntity(), token)
-                    .ConfigureAwait(false);
-
-                return Created($"{_route}{employee.EmpId}", employee.ToViewModel());
-            }
-        
-            catch (Exception e)
-            {
-                _logger.LogError("Can't create employee", e);
-                return new ContentResult
-                {
-                    Content = "Can't create employee",
-                    StatusCode = StatusCodes.Status500InternalServerError
-                };
-            }
-        }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id, CancellationToken token = default)
@@ -125,7 +130,7 @@ namespace EmployeeApp.Controllers
 
                 return new ContentResult
                 {
-                    Content = "deleted",
+                    Content = $"Deleted employee with id:${id}",
                     StatusCode = StatusCodes.Status205ResetContent
                 };
             }

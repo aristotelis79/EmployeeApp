@@ -1,6 +1,12 @@
 ﻿$(document).ready(function () {
+
     //Index data table init
-    const table = $('#employees-table').DataTable();
+    const table = $('#employees-table').DataTable({
+     
+        columnDefs:[{targets:1, render:function(data){
+            return Helpers.formatDate(data);
+        }}]
+    });
     employeesTable.Init(table);
 
     //Init employee Actions
@@ -8,59 +14,84 @@
     
 });
 
+const Helpers = {
+    formatDate: function(dateTimeStr) {
+        const datetime = new Date(dateTimeStr);
+        return datetime.getFullYear() + "-" + (datetime.getMonth() + 1) + "-" + datetime.getDate();
+    },
+    getGuid: function(str) {
+        const regex = new RegExp('(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}');
+        var match = str.match(regex);;
+        return match[0];
+    }
+}
+
 const employeesTable = {
+    
     _table: null,
     
     Init: function(table) {
         employeesTable._table = table;
     },
     addRow: function(data) {
-        employeesTable._table.add( {
-            "EmpName": data["EmpName"],
-            "EmpDateOfHire": data["EmpDateOfHire"],
-            "EmpSupervisorName": data["EmpSupervisorName"]
-        } ).draw();
+        employeesTable._table.row.add([
+            data["empName"],
+            data["empDateOfHire"],
+            data["empSupervisorName"],
+            `<button class="btn btn-info" employee-action="details" data-id="${data['empId']}">Details</button>
+                    <button class="btn btn-warning" employee-action="edit" data-id="${data['empId']}">Edit</button>
+                    <button class="btn btn-danger" employee-action="delete" data-id="${data['empId']}">Delete</button>`
+        ] ).draw();
     },
-    removeRow: function(data) {
-        employeesTable._table.rows( '[data-id="'+data["EmpId"]+'"]' ).remove().draw();
+    removeRow: function(id) {
+        employeesTable._table.rows( $(`[data-id="${id}"]`).parents('tr') ).remove().draw();
     }
 }
 
 const employeesActions = {
-    _count: 0,
 
     Init: function () {
 
         $('[employee-action="new"]').on('click', this.new);
         $('#employees-table').on('click','[employee-action="details"]', this.details);
-        $('#employees-table').on('click', '[employee-action="create"]', this.create);
         $('#employees-table').on('click', '[employee-action="edit"]', this.edit);
         $('#employees-table').on('click','[employee-action="delete"]', this.delete);
+        $('#employee-actions').on('click', '[employee-action="create"]', this.create);
+        $('#employee-actions').on('click', '[employee-action="update"]', this.create);
+
     },
 
     new: function () {
-        $("#employee-actions").load("/employee/create/");
+        employeesActions.load("/employee/create/");
     },
 
     details: function () {
-        employeesActions.ajaxAction('get', '/api/employee/' + $(this).attr('data-id'));
+        employeesActions.load("/employee/details/"+ $(this).attr('data-id'));
+    },
+
+    edit: function () {
+        employeesActions.load("/employee/edit/"+ $(this).attr('data-id'));
     },
 
     create: function () {
         let data = $("#employee-form").serializeToJSON({associativeArrays: false});
-        employeesActions.ajaxAction('post', '/api/employee/', data);
+        employeesActions.ajax('post', '/api/employees/', data);
     },
 
-    edit: function () {
+    update: function () {
         let data = $("#employee-form").serializeToJSON({associativeArrays: false});
-        employeesActions.ajaxAction('put', '/api/employee/' + $(this).attr('data-id'), data);
+        employeesActions.ajax('put', '/api/employees/' + $(this).attr('data-id'), data);
     },
 
     delete: function () {
-        employeesActions.ajaxAction('delete', '/api/employee/' + $(this).attr('data-id'));
+        employeesActions.ajax('delete', '/api/employees/' + $(this).attr('data-id'));
     },
 
-    ajaxAction: function (type, url, data) {
+    load: function(url) {
+        $("#employee-actions").load(url);
+    },
+
+    ajax: function (type, url, data) {
         $.ajax({
             cache: false,
             dataType: 'json',
@@ -76,13 +107,13 @@ const employeesActions = {
             error: function (jqXHR, textStatus, errorThrown) {
 
                 debugger;
+                if (jqXHR.status === 205) {
+                    employeesTable.removeRow(Helpers.getGuid(jqXHR.responseText));
+                }
             }
         }).done(function(response, textStatus, jqXHR){
-            if (jqXHR.status === 200) {
+            if (jqXHR.status === 201) {
                 employeesTable.addRow(response);
-            }
-            if (jqXHR.status === 205) {
-                employeesTable.removeRow(data);
             }
         });
     }

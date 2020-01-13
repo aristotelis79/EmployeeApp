@@ -35,8 +35,6 @@ namespace EmployeeApp.Services
         {
             return await _employeeRepository.Table
                 .Include(x => x.EmpSupervisorNavigation)
-                //.Include(x => x.EmployeeAttribute)
-                //.ThenInclude(x => x.EmpAttrAttribute)
                 .ToListAsync(token).ConfigureAwait(false);
         }
 

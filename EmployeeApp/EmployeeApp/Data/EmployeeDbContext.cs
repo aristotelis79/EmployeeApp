@@ -4,9 +4,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EmployeeApp.Data
 {
-    /// <summary>
-    /// Represents base object context
-    /// </summary>
     public partial class EmployeeDbContext: DbContext, IDbContext
     {
         #region Fields

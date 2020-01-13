@@ -25,25 +25,31 @@ namespace EmployeeApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(CancellationToken token = default)
         {
-            var employees = await GetAllEmployees(token);
+            var employees = await _employeeService.GetAll(token)
+                                                    .ConfigureAwait(false);
             return View(employees.ToViewModel());
         }
 
 
-        [HttpPost]
-        [Produces("application/json")]
-        public async Task<IActionResult> Create(EmployeeViewModel model, CancellationToken token = default)
+        [HttpGet]
+        public async Task<IActionResult> Details(Guid id, CancellationToken token = default)
         {
-            var employee = await _employeeService.InsertAsync(model.ToEntity(), token)
-                .ConfigureAwait(false);
+            var employee = await _employeeService.GetById(id,token)
+                                                    .ConfigureAwait(false);
 
-            return Json(employee.ToViewModel());
+            if(employee == null)
+                return new NotFoundResult();
+
+            await LoadSelectListSupervisors(employee.EmpSupervisor, token).ConfigureAwait(false);
+
+            return  ViewComponent("Employee",new {model = employee.ToViewModel()});
         }
 
         [HttpGet]
         public async Task<IActionResult> Create(CancellationToken token = default)
         {
-            ViewData["EmpSupervisor"] = new SelectList(await GetAllEmployees(token),"EmpId", "EmpName");
+            await LoadSelectListSupervisors(token: token).ConfigureAwait(false);
+
             return  ViewComponent("Employee",EmployeeViewModel.New());
         }
 
@@ -56,14 +62,18 @@ namespace EmployeeApp.Controllers
             if(employee == null)
                 return new NotFoundResult();
 
+            await LoadSelectListSupervisors(token: token).ConfigureAwait(false);
+
             return  ViewComponent("Employee",new {model = employee.ToViewModel()});
         }
 
-        private async Task<List<Employee>> GetAllEmployees(CancellationToken token)
+        private async Task LoadSelectListSupervisors(Guid? selected = null , CancellationToken token = default)
         {
-            return await _employeeService.GetAll(token)
-                .ConfigureAwait(false);
-        }
+            var employees = new List<Employee> {new Employee()};
+            employees.AddRange( await _employeeService.GetAll(token).ConfigureAwait(false));
+            
+            ViewData["EmpSupervisor"] = new SelectList(employees, "EmpId", "EmpName", selected);
 
+        }
     }
 }
