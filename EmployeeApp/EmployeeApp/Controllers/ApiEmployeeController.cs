@@ -137,7 +137,7 @@ namespace EmployeeApp.Controllers
         private async Task GetSupervisorName(EmployeeViewModel model, CancellationToken token)
         {
             if (model.EmpSupervisorId != null)
-                model.EmpName = await _employeeService.GetEmployeNameById((Guid) model.EmpSupervisorId, token)
+                model.EmpSupervisorName = await _employeeService.GetEmployeNameById((Guid) model.EmpSupervisorId, token)
                     .ConfigureAwait(false);
         }
     }

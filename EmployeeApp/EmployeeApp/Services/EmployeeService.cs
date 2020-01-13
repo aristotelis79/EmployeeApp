@@ -73,8 +73,7 @@ namespace EmployeeApp.Services
 
         public async Task<string> GetEmployeNameById(Guid emId, CancellationToken token)
         {
-            return (await GetById(emId, token).ConfigureAwait(false))
-                ?.EmpSupervisorNavigation.EmpName;
+            return (await GetById(emId, token).ConfigureAwait(false))?.EmpName;
         }
 
         
