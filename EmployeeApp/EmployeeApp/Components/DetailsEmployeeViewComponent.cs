@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace EmployeeApp.Components
 {
 
-    [ViewComponent(Name = "Employee")]
-    public class EmployeeViewComponent : ViewComponent
+    [ViewComponent(Name = "DetailsEmployee")]
+    public class DetailsEmployeeViewComponent : ViewComponent
     {
         public IViewComponentResult Invoke(EmployeeViewModel model)
         {

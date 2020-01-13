@@ -40,9 +40,7 @@ namespace EmployeeApp.Controllers
             if(employee == null)
                 return new NotFoundResult();
 
-            await LoadSelectListSupervisors(employee.EmpSupervisor, token).ConfigureAwait(false);
-
-            return  ViewComponent("Employee",new {model = employee.ToViewModel()});
+            return  ViewComponent("DetailsEmployee",new {model = employee.ToViewModel()});
         }
 
         [HttpGet]
@@ -50,7 +48,7 @@ namespace EmployeeApp.Controllers
         {
             await LoadSelectListSupervisors(token: token).ConfigureAwait(false);
 
-            return  ViewComponent("Employee",EmployeeViewModel.New());
+            return  ViewComponent("CreateEmployee",EmployeeViewModel.New());
         }
 
         [HttpGet]
@@ -64,7 +62,7 @@ namespace EmployeeApp.Controllers
 
             await LoadSelectListSupervisors(token: token).ConfigureAwait(false);
 
-            return  ViewComponent("Employee",new {model = employee.ToViewModel()});
+            return  ViewComponent("EditEmployee",new {model = employee.ToViewModel()});
         }
 
         private async Task LoadSelectListSupervisors(Guid? selected = null , CancellationToken token = default)

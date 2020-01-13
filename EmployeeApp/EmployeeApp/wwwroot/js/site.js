@@ -57,7 +57,7 @@ const employeesActions = {
         $('#employees-table').on('click', '[employee-action="edit"]', this.edit);
         $('#employees-table').on('click','[employee-action="delete"]', this.delete);
         $('#employee-actions').on('click', '[employee-action="create"]', this.create);
-        $('#employee-actions').on('click', '[employee-action="update"]', this.create);
+        $('#employee-actions').on('click', '[employee-action="update"]', this.update($(this).attr('data-id')));//TODO
 
     },
 
@@ -78,9 +78,9 @@ const employeesActions = {
         employeesActions.ajax('post', '/api/employees/', data);
     },
 
-    update: function () {
+    update: function (id) {
         let data = $("#employee-form").serializeToJSON({associativeArrays: false});
-        employeesActions.ajax('put', '/api/employees/' + $(this).attr('data-id'), data);
+        employeesActions.ajax('put', '/api/employees/' + id, data);
     },
 
     delete: function () {
