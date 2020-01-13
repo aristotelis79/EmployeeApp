@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using EmployeeApp.Data.Entities;
 using EmployeeApp.Models;
 using EmployeeApp.Models.Mappers;
 using EmployeeApp.Services;
@@ -16,6 +15,8 @@ namespace EmployeeApp.Controllers
     [ApiController]
     public class ApiEmployeeController : ControllerBase
     {
+        private const string _route = "/api/employee/";
+
         private readonly IEmployeeService _employeeService;
         private readonly ILogger<ApiEmployeeController> _logger;
 
@@ -27,14 +28,14 @@ namespace EmployeeApp.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<EmployeeViewModel>>> Get(CancellationToken token = default)
+        public async Task<IActionResult> Get(CancellationToken token = default)
         {
-            return  (await _employeeService.GetAll(token)
-                                            .ConfigureAwait(false)).ToViewModel();
+            return  Ok((await _employeeService.GetAll(token)
+                                            .ConfigureAwait(false)).ToViewModel());
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<EmployeeViewModel>> Get(Guid id, CancellationToken token = default)
+        public async Task<IActionResult> Get(Guid id, CancellationToken token = default)
         {
             var employee = await _employeeService.GetById(id,token)
                                                     .ConfigureAwait(false);
@@ -44,7 +45,7 @@ namespace EmployeeApp.Controllers
                 return NotFound();
             }
 
-            return employee.ToViewModel();
+            return Ok(employee.ToViewModel());
         }
 
 
@@ -74,48 +75,24 @@ namespace EmployeeApp.Controllers
                     return Content("not success update");
 
 
-                return Content("true");
+                return Created($"{_route}{id}", model);
             }
             catch(Exception e)
             {
                 _logger.LogError("Can't edit employee", e);
                 return Content("false");
             }
-            //if (id != employee.EmpId)
-            //{
-            //    return BadRequest();
-            //}
-
-            //_context.Entry(employee).State = EntityState.Modified;
-
-            //try
-            //{
-            //    await _context.SaveChangesAsync();
-            //}
-            //catch (DbUpdateConcurrencyException)
-            //{
-            //    if (!EmployeeExists(id))
-            //    {
-            //        return NotFound();
-            //    }
-            //    else
-            //    {
-            //        throw;
-            //    }
-            //}
-
-            //return NoContent();
         }
 
-        [HttpPost]
-        public async Task<ActionResult<EmployeeViewModel>> Create(EmployeeViewModel model)
+        [HttpPost("{model}")]
+        public async Task<IActionResult> Create(EmployeeViewModel model, CancellationToken token = default)
         {
             try
             {
-                var employee = await _employeeService.InsertAsync(model.ToEntity())
+                var employee = await _employeeService.InsertAsync(model.ToEntity(), token)
                     .ConfigureAwait(false);
 
-                return employee.ToViewModel();
+                return Created($"{_route}{employee.EmpId}", employee.ToViewModel());
             }
         
             catch (Exception e)

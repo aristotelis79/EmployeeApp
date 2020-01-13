@@ -55,15 +55,16 @@ namespace EmployeeApp.Models.Mappers
             };
             foreach (var p in model.EmployeeAttributes)
             {
+                var attrId = p.AttrId != null && p.AttrId != Guid.Empty
+                                                                    ? p.AttrId
+                                                                    : Guid.NewGuid();
                 entity.EmployeeAttribute.Add(new EmployeeAttribute
                 {
                     EmpAttrEmployeeId = empId,
-                    EmpAttrAttributeId = p.AttrId,
+                    EmpAttrAttributeId = attrId,
                     EmpAttrAttribute = new Attribute
                     {
-                        AttrId = p.AttrId != null && p.AttrId != Guid.Empty 
-                                                                            ? p.AttrId
-                                                                            : Guid.NewGuid(),
+                        AttrId = attrId,
                         AttrName = p.AttrName,
                         AttrValue = p.AttrValue
                     }

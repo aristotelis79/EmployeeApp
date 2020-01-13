@@ -1,53 +1,88 @@
 ﻿$(document).ready(function () {
     //Index data table init
-    const employeesTable = $('#employees-table').DataTable();
+    const table = $('#employees-table').DataTable();
+    employeesTable.Init(table);
 
     //Init employee Actions
     employeesActions.Init(employeesTable);
+    
 });
+
+const employeesTable = {
+    _table: null,
+    
+    Init: function(table) {
+        employeesTable._table = table;
+    },
+    addRow: function(data) {
+        employeesTable._table.add( {
+            "EmpName": data["EmpName"],
+            "EmpDateOfHire": data["EmpDateOfHire"],
+            "EmpSupervisorName": data["EmpSupervisorName"]
+        } ).draw();
+    },
+    removeRow: function(data) {
+        employeesTable._table.rows( '[data-id="'+data["EmpId"]+'"]' ).remove().draw();
+    }
+}
 
 const employeesActions = {
     _count: 0,
-    _table: null,
 
-    Init: function (table) {
-        this._table = table;
-        $('[employee-action="details"]').on('click', this.details);
+    Init: function () {
+
         $('[employee-action="new"]').on('click', this.new);
-        $('#employee-actions').on('click', '[employee-action="create"]', this.create);
-        $('#employee-actions').on('click', '[employee-action="edit"]', this.edit);
-        $('[employee-action="delete"]').on('click', this.delete);
+        $('#employees-table').on('click','[employee-action="details"]', this.details);
+        $('#employees-table').on('click', '[employee-action="create"]', this.create);
+        $('#employees-table').on('click', '[employee-action="edit"]', this.edit);
+        $('#employees-table').on('click','[employee-action="delete"]', this.delete);
     },
+
     new: function () {
-        $("#employee-actions").load("employee/create");
+        $("#employee-actions").load("/employee/create/");
     },
+
     details: function () {
-        employeesActions.ajaxAction('get', 'api/employee/' + $(this).attr('data-id'));
+        employeesActions.ajaxAction('get', '/api/employee/' + $(this).attr('data-id'));
     },
+
     create: function () {
-        var form = $('#employee-form')[0].elements;
-        var data = ToJsonObj.formToJSON(form);
-        employeesActions.ajaxAction('post', 'api/employee/', data);
+        let data = $("#employee-form").serializeToJSON({associativeArrays: false});
+        employeesActions.ajaxAction('post', '/api/employee/', data);
     },
+
     edit: function () {
-        employeesActions.ajaxAction('put', 'api/employee/' + $(this).attr('data-id'));
+        let data = $("#employee-form").serializeToJSON({associativeArrays: false});
+        employeesActions.ajaxAction('put', '/api/employee/' + $(this).attr('data-id'), data);
     },
+
     delete: function () {
-        employeesActions.ajaxAction('delete', 'api/employee/' + $(this).attr('data-id'));
+        employeesActions.ajaxAction('delete', '/api/employee/' + $(this).attr('data-id'));
     },
+
     ajaxAction: function (type, url, data) {
         $.ajax({
             cache: false,
             dataType: 'json',
+            "headers": {
+                "Content-Type": "application/json"
+            },     
             type: type,
-            data: data,
+            data: JSON.stringify(data),
             url: url,
-            success: function (data, textStatus, jqXHR) {
+            success: function (response, textStatus, jqXHR) {
                 debugger;
-                _table.ajax.reload();
             },
             error: function (jqXHR, textStatus, errorThrown) {
+
                 debugger;
+            }
+        }).done(function(response, textStatus, jqXHR){
+            if (jqXHR.status === 200) {
+                employeesTable.addRow(response);
+            }
+            if (jqXHR.status === 205) {
+                employeesTable.removeRow(data);
             }
         });
     }
