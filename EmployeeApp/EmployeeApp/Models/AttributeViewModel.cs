@@ -11,11 +11,11 @@ namespace EmployeeApp.Models
         public Guid AttrId { get; set; }
 
         [Required]
-        [DisplayName("Name")]
+        [DisplayName("Attribute Name")]
         public string AttrName { get; set; }
 
         [Required]
-        [DisplayName("Value")]
+        [DisplayName("Attribute Value")]
         public string AttrValue { get; set; }
     }
 }

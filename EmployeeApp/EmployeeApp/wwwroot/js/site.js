@@ -111,14 +111,19 @@ const employeesActions = {
                 if (jqXHR.status === 201) {
                     employeesTable.updateRow(response);
                 }
+                alerts.success();
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 if (jqXHR.status === 205) {
                     employeesTable.removeRow(Helpers.getGuid(jqXHR.responseText));
+                    $("#employee-actions").html('');
+                    alerts.success();
+                } else {
+                    alerts.error(jqXHR.responseJSON);
                 }
             }
         }).done(function(response, textStatus, jqXHR) {
-
+            $("#employee-actions").html('');
         });
     }
 };
@@ -144,5 +149,53 @@ const attributeActions = {
     },
     load: function(url,data) {
         $("#employee-attributes-form").load(url,data);
+    }
+}
+
+const alerts = {
+
+    getType: function(response, msg) {
+
+        if (response.title && response.title.includes('validation')) {
+            
+            msg.type = 'warning';
+
+            if (response.errors) {
+            
+                msg.text = '';
+                
+                for (var e in response.errors) {
+                    var errors = response.errors[e].values();
+                    for (const value of errors) {
+                        msg.text = msg.text.concat(value,"\n");
+                    }
+                }
+            }
+        }
+        return msg;
+    },
+    error: function(response) {
+
+        var msg = {
+            type: 'error',
+            title: 'Oops...',
+            text: 'Something went wrong!'
+        };
+
+        if (response) {
+            msg = alerts.getType(response,msg);
+        } 
+
+        Swal.fire({
+            title: msg.title,
+            icon: msg.type,
+            text: msg.text
+        });
+    },
+    success: function() {
+        Swal.fire({
+            title:"Success",
+            icon: 'success'
+        });
     }
 }

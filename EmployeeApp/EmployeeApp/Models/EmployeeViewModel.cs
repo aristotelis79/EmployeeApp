@@ -17,14 +17,14 @@ namespace EmployeeApp.Models
 
         public Guid EmpId { get; set; }
         
-        //[Required]
+        [Required]
         [DisplayName("Employee Name")]
         public string EmpName { get; set; }
-        
+
         [DisplayName("Date of Hire")]
-        [Required]
         [DataType(DataType.Date)]
-        public DateTime EmpDateOfHire { get; set; }
+        [Required]
+        public DateTime EmpDateOfHire { get; set; } = DateTime.UtcNow;
 
         [DisplayName("Supervisor")]
         public Guid? EmpSupervisorId { get; set; }
