@@ -23,6 +23,7 @@ namespace EmployeeApp.Models
 
         [DisplayName("Date of Hire")]
         [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString="{yyyy-MM-dd}")]
         [Required]
         public DateTime EmpDateOfHire { get; set; } = DateTime.UtcNow;
 

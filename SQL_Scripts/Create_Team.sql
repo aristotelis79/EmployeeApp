@@ -4,9 +4,7 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-CREATE PROCEDURE [dbo].[CrateTeam] 
-	@Supervisor_ID  uniqueidentifier NOT NULL
-AS
+DECLARE @Supervisor_ID uniqueidentifier = '82D58D49-72A2-42B0-A250-471E5C10D7D9' 
 
 BEGIN
 	IF OBJECT_ID('tempdb..#Employee_Hierarchy') IS NOT NULL
@@ -40,19 +38,21 @@ BEGIN
 	 WHERE len(TEAM) > 0
 
 
-
-	DECLARE @TeamValue nvarchar(50) = (SELECT Distinct TEAM 
-										FROM #Employee_Hierarchy)
-
-	PRINT 'create team of ' + @TeamValue
-
+	DECLARE @teamValue nvarchar(50), @teamNumber int;
+	
+	SELECT Distinct @teamValue= TEAM, @teamNumber = Count(*) 
+	FROM #Employee_Hierarchy 
+	GROUP BY TEAM
+	
 	INSERT INTO Attribute
-	SELECT ATTR_ID,'Team', @TeamValue
+	SELECT ATTR_ID,'Team', @teamValue
 	FROM #Employee_Hierarchy
 
 	INSERT INTO EmployeeAttribute
 	SELECT EMP_ID,ATTR_ID
 	FROM #Employee_Hierarchy
+
+	PRINT  'Created the team of ' + @teamValue + ' with '+ CAST(@teamNumber as nvarchar(50)) + ' members'
 
 END
 GO

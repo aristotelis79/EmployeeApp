@@ -1,12 +1,7 @@
 ﻿$(document).ready(function () {
 
     //Index data table init
-    const table = $('#employees-table').DataTable({
-     
-        columnDefs:[{targets:1, render:function(data){
-            return Helpers.formatDate(data);
-        }}]
-    });
+    const table = $('#employees-table').DataTable();
     employeesTable.Init(table);
 
     //Init employee Actions
@@ -15,10 +10,6 @@
 });
 
 const Helpers = {
-    formatDate: function(dateTimeStr) {
-        const datetime = new Date(dateTimeStr);
-        return `${datetime.getFullYear()}-${(datetime.getMonth() + 1)}-${datetime.getDate()}`;
-    },
     getGuid: function(str) {
         const regex = new RegExp("(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}");
         var match = str.match(regex);;
@@ -41,7 +32,7 @@ const employeesTable = {
 
         employeesTable._table.row.add([
             data["empName"],
-            data["empDateOfHire"],
+            data["empDateOfHire"].split("T")[0],
             data["empSupervisorName"],
             `<div class="col-3"><button class="btn btn-sm btn-info" employee-action="details" data-id="${id}">Details</button></div>
             <div class="col-3"><button class="btn btn-sm btn-warning" employee-action="edit" data-id="${id}">Edit</button></div>
