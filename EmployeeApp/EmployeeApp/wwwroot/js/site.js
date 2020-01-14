@@ -11,15 +11,16 @@
 
     //Init employee Actions
     employeesActions.Init(employeesTable);
+    attributeActions.Init();
 });
 
 const Helpers = {
     formatDate: function(dateTimeStr) {
         const datetime = new Date(dateTimeStr);
-        return datetime.getFullYear() + "-" + (datetime.getMonth() + 1) + "-" + datetime.getDate();
+        return `${datetime.getFullYear()}-${(datetime.getMonth() + 1)}-${datetime.getDate()}`;
     },
     getGuid: function(str) {
-        const regex = new RegExp('(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}');
+        const regex = new RegExp("(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}");
         var match = str.match(regex);;
         return match[0];
     }
@@ -66,16 +67,14 @@ const employeesActions = {
 
     new: function () {
         employeesActions.load("/employee/create/");
-        attributeActions.Init(1);//TODO
     },
 
     details: function () {
-        employeesActions.load("/employee/details/"+ $(this).attr('data-id'));
+        employeesActions.load(`/employee/details/${$(this).attr('data-id')}`);
     },
 
     edit: function () {
-        employeesActions.load("/employee/edit/"+ $(this).attr('data-id'));
-        attributeActions.Init($(this).attr('[attributes-number]'));
+        employeesActions.load(`/employee/edit/${$(this).attr('data-id')}`);
     },
 
     create: function () {
@@ -89,7 +88,7 @@ const employeesActions = {
     },
 
     delete: function () {
-        employeesActions.ajax('delete', '/api/employees/' + $(this).attr('data-id'));
+        employeesActions.ajax('delete', `/api/employees/${$(this).attr('data-id')}`);
     },
 
     load: function(url) {
@@ -116,45 +115,32 @@ const employeesActions = {
                     employeesTable.removeRow(Helpers.getGuid(jqXHR.responseText));
                 }
             }
-        }).done(function(response, textStatus, jqXHR){});
+        }).done(function(response, textStatus, jqXHR) {
+
+        });
     }
 };
 
 const attributeActions = {
-    Init: function(count) {
-        this.count = count;
-        $("#employee-actions").on("click","#add-attribute", attributeActions.addAttribute);
-        $("#employee-actions").on('click','[attribute-action="delete"]', attributeActions.deleteAttribute);
-
-        attributeActions.disablePreviousDeleteButtons();
+    
+    Init: function () {
+        $('#employee-actions').on('click', '[attribute-action="delete"]', this.delete);
+        $('#employee-actions').on('click', '[attribute-action="new"]', this.new);
     },
-    count: 0,
-    addAttribute: function() {
-        const $template = $("#attribute-template").clone();
-
-        const $attributeItemHtml = $template.html().replace(/\{0}/g, attributeActions.count);
-
-        $("#additional-attribute").append($attributeItemHtml);
-
-        attributeActions.count += 1;
-
-        attributeActions.disablePreviousDeleteButtons();
+    new: function() {
+        let model = $("#employee-form").serializeToJSON({associativeArrays: false});
+        attributeActions.load('/employee/addAttribute',model);
     },
-    deleteAttribute: function() {
-        var attribute = $(this).data("attributeid");
-        $("#" + attribute).remove();
-
-        attributeActions.count -= 1;
-
-        attributeActions.disablePreviousDeleteButtons();
+    delete: function() {
+        var model = $("#employee-form").serializeToJSON({associativeArrays: false});
+        var number = $(this).attr('data-attribute-number');
+        var data = {
+             model: model,
+             attributeNumber: number
+        };
+        attributeActions.load('/employee/removeAttribute',data);
     },
-    disablePreviousDeleteButtons: function() {
-        $('[attribute-action="delete"]').each(function() {
-            if ($(this).data("number") < attributeActions.count - 1) {
-                $(this).attr("disabled", true);
-            } else {
-                $(this).attr("disabled", false);
-            }
-        });
+    load: function(url,data) {
+        $("#employee-attributes-form").load(url,data);
     }
-};
+}

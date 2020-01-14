@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace EmployeeApp.Models
 {
+    [Serializable]
     public class AttributeViewModel
     {
         public Guid AttrId { get; set; }

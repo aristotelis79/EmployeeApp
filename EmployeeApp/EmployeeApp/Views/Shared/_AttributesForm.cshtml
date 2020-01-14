@@ -1,0 +1,20 @@
+﻿@model EmployeeApp.Models.EmployeeViewModel
+
+
+@for (var a = 0; a < Model.EmployeeAttributes.Count; a++)
+{
+    <div class="form-row" id="attribute-@a">
+        <input type="hidden" asp-for="@Model.EmployeeAttributes[a].AttrId" />
+        <div class="col-lg-4 col-md-5 col-sm-10 form-group">
+            <input asp-for="@Model.EmployeeAttributes[a].AttrName" class="form-control blue-border" />
+            <span asp-validation-for="@Model.EmployeeAttributes[a].AttrName" class="text-danger"></span>
+        </div>
+        <div class="col-lg-4 col-md-5 col-sm-10 form-group">
+            <input asp-for="@Model.EmployeeAttributes[a].AttrValue" class="form-control" />
+            <span asp-validaton-for="@Model.EmployeeAttributes[a].AttrValue" class="text-danger"></span>
+        </div>
+        <div class="col-lg-4 col-md-2 col-sm-2 form-group full-btn-wrapper">
+            <button class="btn btn-danger" attribute-action="delete" type="button" data-attribute-number="@a">Delete</button>
+        </div>
+    </div>
+}

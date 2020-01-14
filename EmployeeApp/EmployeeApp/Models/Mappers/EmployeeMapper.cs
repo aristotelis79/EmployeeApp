@@ -79,35 +79,33 @@ namespace EmployeeApp.Models.Mappers
             entity.EmpDateOfHire = model.EmpDateOfHire;
             entity.EmpName = model.EmpName;
             entity.EmpSupervisor = model.EmpSupervisorId;
+            var employeeAttributes = entity.EmployeeAttribute.ToList();
 
-            var entityAttributeIds = entity.EmployeeAttribute.Select(s => s.EmpAttrAttribute.AttrId).ToList();
+            var entityAttributeIds = employeeAttributes.Select(s => s.EmpAttrAttribute.AttrId).ToList();
             var modelAttributeIds = model.EmployeeAttributes.Select(s => s.AttrId).ToList();
 
 
             //updated Attributes
-            var updatedAttributesIds = entityAttributeIds.Intersect(modelAttributeIds);
-            foreach (var employeeAttribute in entity.EmployeeAttribute.Where(x => updatedAttributesIds.Contains(x.EmpAttrAttributeId)))
+            var updatedAttributesIds = entityAttributeIds.Intersect(modelAttributeIds).ToList();
+            foreach (var employeeAttribute in employeeAttributes.Where(x => updatedAttributesIds.Contains(x.EmpAttrAttributeId)))
             {
                 employeeAttribute.EmpAttrAttribute.AttrName = model.EmployeeAttributes.First(f => f.AttrId == employeeAttribute.EmpAttrAttribute.AttrId).AttrName;
                 employeeAttribute.EmpAttrAttribute.AttrValue = model.EmployeeAttributes.First(f => f.AttrId == employeeAttribute.EmpAttrAttribute.AttrId).AttrValue;
             }
 
             //deleted Attributes
-            var deleteAttributesIds = entityAttributeIds.Where(e => modelAttributeIds.All(m => m != e));
-            foreach (var employeeAttribute in entity.EmployeeAttribute.Where(x => deleteAttributesIds.Contains(x.EmpAttrAttributeId)))
-            {
-                entity.EmployeeAttribute.Remove(employeeAttribute);
-            }
+            var deleteAttributesIds = entityAttributeIds.Where(e => modelAttributeIds.All(m => m != e)).ToList();
+            employeeAttributes.RemoveAll(x => deleteAttributesIds.Contains(x.EmpAttrAttributeId));
 
             //new Attributes
-            var newAttributesIds = modelAttributeIds.Where(m => entityAttributeIds.All(e => e != m));
+            var newAttributesIds = modelAttributeIds.Where(m => entityAttributeIds.All(e => e != m)).ToList();
 
             foreach (var a in model.EmployeeAttributes.Where(x=> newAttributesIds.Contains(x.AttrId)))
             {
                 var attrId = a.AttrId != null && a.AttrId != Guid.Empty
                                                                         ? a.AttrId
                                                                         : Guid.NewGuid();
-                entity.EmployeeAttribute.Add(new EmployeeAttribute
+                employeeAttributes.Add(new EmployeeAttribute
                 {
                     EmpAttrEmployeeId = entity.EmpId,
                     EmpAttrAttributeId = attrId ,
@@ -120,6 +118,7 @@ namespace EmployeeApp.Models.Mappers
                 });
             }
 
+            entity.EmployeeAttribute = (ICollection<EmployeeAttribute>)employeeAttributes;
             return entity;
         }
     }

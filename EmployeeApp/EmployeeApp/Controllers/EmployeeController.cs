@@ -65,6 +65,20 @@ namespace EmployeeApp.Controllers
             return  ViewComponent("EditEmployee",new {model = employee.ToViewModel()});
         }
 
+        [HttpPost]
+        public IActionResult AddAttribute(EmployeeViewModel model)
+        {
+            model.EmployeeAttributes.Add(new AttributeViewModel());
+            return PartialView("_AttributesForm",model);
+        }
+
+        [HttpPost]
+        public IActionResult RemoveAttribute(EmployeeViewModel model, int attributeNumber)
+        {
+            model.EmployeeAttributes.RemoveAt(attributeNumber);
+            return PartialView("_AttributesForm",model);
+        }
+
         private async Task LoadSelectListSupervisors(Guid? selected = null , CancellationToken token = default)
         {
             var employees = new List<Employee> {new Employee()};

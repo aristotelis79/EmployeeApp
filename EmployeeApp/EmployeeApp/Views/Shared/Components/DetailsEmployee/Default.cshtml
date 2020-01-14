@@ -8,7 +8,7 @@
 <h2>@Model.EmpName</h2>
 
 <input type="hidden" asp-for="EmpId" />
-<div class="row">
+<div class="form-row">
     <div class="col-lg-4 col-md-6 col-sm-12 form-group">
         <label asp-for="EmpName"></label>
         <input asp-for="EmpName" class="form-control" disabled />
@@ -21,8 +21,10 @@
         <label asp-for="EmpSupervisorName"></label>
         <input asp-for="EmpSupervisorName" class="form-control" disabled />
     </div>
-    @for (var a = 0; a < Model.EmployeeAttributes.Count; a++)
-    {
+</div>
+@for (var a = 0; a < Model.EmployeeAttributes.Count; a++)
+{
+    <div class="form-row">
         <input type="hidden" asp-for="@Model.EmployeeAttributes[a].AttrId" />
         <div class="col-lg-3 col-md-6 col-sm-12 form-group">
             <input asp-for="@Model.EmployeeAttributes[a].AttrName" class="form-control blue-border" disabled />
@@ -30,5 +32,5 @@
         <div class="col-lg-3 col-md-6 col-sm-12 form-group">
             <input asp-for="@Model.EmployeeAttributes[a].AttrValue" class="form-control" disabled />
         </div>
-    }
-</div>
+    </div>
+}

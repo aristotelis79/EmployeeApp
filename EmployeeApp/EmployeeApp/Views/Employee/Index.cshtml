@@ -20,10 +20,17 @@
                 <td>@m.EmpName</td>
                 <td>@m.EmpDateOfHire</td>
                 <td>@m.EmpSupervisorName</td>
-                <td>
-                    <button class="btn btn-info" employee-action="details" attributes-number="@m.EmployeeAttributes.Count"  data-id="@m.EmpId">Details</button>
-                    <button class="btn btn-warning" employee-action="edit" attributes-number="@m.EmployeeAttributes.Count"  data-id="@m.EmpId">Edit</button>
-                    <button class="btn btn-danger" employee-action="delete" attributes-number="@m.EmployeeAttributes.Count" data-id="@m.EmpId">Delete</button>
+                <td class="row">
+                    <div class="col-3">
+                        <button class="btn btn-sm btn-info" employee-action="details" attributes-number="@m.EmployeeAttributes.Count" data-id="@m.EmpId">Details</button>
+                    </div>
+                    <div class="col-3">
+                        <button class="btn btn-sm btn-warning" employee-action="edit" attributes-number="@m.EmployeeAttributes.Count" data-id="@m.EmpId">Edit</button>
+                    </div>
+                    <div class="col-3">
+                        <button class="btn btn-sm btn-danger" employee-action="delete" attributes-number="@m.EmployeeAttributes.Count" data-id="@m.EmpId">Delete</button>
+                    </div>
+
                 </td>
             </tr>
         }

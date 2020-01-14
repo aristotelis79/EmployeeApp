@@ -3,7 +3,7 @@
 <form id="employee-form">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <input type="hidden" asp-for="EmpId" />
-    <div class="row">
+    <div class="form-row">
         <div class="col-lg-4 col-md-6 col-sm-12 form-group">
             <label asp-for="EmpName"></label>
             <input asp-for="EmpName" class="form-control" />
@@ -19,27 +19,18 @@
             <select asp-for="EmpSupervisorId" class="form-control" asp-items="ViewBag.EmpSupervisor"></select>
             <span asp-validation-for="EmpSupervisorId" class="text-danger"></span>
         </div>
-        @for (var a = 0; a < Model.EmployeeAttributes.Count; a++)
-        {
-            <div class="form-group" id="attribute-@a">
-                <input type="hidden" asp-for="@Model.EmployeeAttributes[a].AttrId" />
-                <div class="col-lg-4 col-md-5 col-sm-10 form-group">
-                    <input asp-for="@Model.EmployeeAttributes[a].AttrName" class="form-control blue-border" />
-                    <span asp-validation-for="@Model.EmployeeAttributes[a].AttrName" class="text-danger"></span>
-                </div>
-                <div class="col-lg-4 col-md-5 col-sm-10 form-group">
-                    <input asp-for="@Model.EmployeeAttributes[a].AttrValue" class="form-control" />
-                    <span asp-validation-for="@Model.EmployeeAttributes[a].AttrValue" class="text-danger"></span>
-                </div>
-                <div class="col-lg-3  col-md-2  col-sm-2 text-right">
-                    <button class="btn btn-danger" attribute-action="delete" type="button" data-attributeid="attribute-@a" data-number="@a">Delete</button>
-                </div>
-            </div>
-        }
-        <div id="additional-attribute"></div>
     </div>
+    <div id="employee-attributes-form">
+        <partial name="_AttributesForm" for="@Model" />
+    </div>
+    <div class="row">
+        <div class="row h-100 justify-content-center center">
+            <button type="button" class="btn btn-secondary" attribute-action="new" id="add-attribute">Add New</button>
+        </div>
+    </div>
+    @*<div id="additional-attribute"></div>*@
 </form>
-<partial name="_AttributeTemplate" />
+@*<partial name="_AttributeTemplate" />*@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
