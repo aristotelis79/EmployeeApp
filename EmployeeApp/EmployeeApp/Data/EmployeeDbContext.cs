@@ -27,7 +27,7 @@ namespace EmployeeApp.Data
         #region Methods
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-
+            
             modelBuilder.ApplyConfiguration(new EmployeeConfiguration());
             modelBuilder.ApplyConfiguration(new EmployeeAttributeConfiguration());
             modelBuilder.ApplyConfiguration(new AttributeConfiguration());

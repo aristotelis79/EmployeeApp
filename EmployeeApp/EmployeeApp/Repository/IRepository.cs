@@ -18,7 +18,7 @@ namespace EmployeeApp.Repository
 
         Task<int> InsertAsync(TEntity entity, CancellationToken token = default);
 
-        Task<int> UpdateAsync(TEntity entity, CancellationToken token = default);
+        Task<int> UpdateAsync(TEntity entity, bool saveChanges= true, CancellationToken token = default);
 
         Task<int> DeleteAsync(TEntity entity, bool saveChanges= true, CancellationToken token = default);
 

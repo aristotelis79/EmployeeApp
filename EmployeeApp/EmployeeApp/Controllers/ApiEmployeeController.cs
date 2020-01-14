@@ -86,7 +86,9 @@ namespace EmployeeApp.Controllers
 
                 if (model.EmpId != id || !ModelState.IsValid) return Content("not valid");
 
-                await _employeeService.UpdateAsync(employee.UpdateEmployeeEntity(model), token).ConfigureAwait(false);
+                var (entity,deleteAttributes) = employee.UpdateEmployeeEntity(model);
+
+                await _employeeService.UpdateAsync(entity,deleteAttributes, token).ConfigureAwait(false);
 
                 await GetSupervisorName(model, token);
 

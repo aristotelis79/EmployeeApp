@@ -43,10 +43,12 @@ const employeesTable = {
             data["empName"],
             data["empDateOfHire"],
             data["empSupervisorName"],
-            `<button class="btn btn-info" employee-action="details" data-id="${id}">Details</button>
-                    <button class="btn btn-warning" employee-action="edit" data-id="${id}">Edit</button>
-                    <button class="btn btn-danger" employee-action="delete" data-id="${id}">Delete</button>`
-        ] ).draw();
+            `<div class="col-3"><button class="btn btn-sm btn-info" employee-action="details" data-id="${id}">Details</button></div>
+            <div class="col-3"><button class="btn btn-sm btn-warning" employee-action="edit" data-id="${id}">Edit</button></div>
+            <div class="col-3"><button class="btn btn-sm btn-danger" employee-action="delete" data-id="${id}">Delete</button></div>`
+        ]).draw();
+
+        $(`[data-id="${id}"]`).parents('td').addClass('row');
     },
     removeRow: function(id) {
         employeesTable._table.rows($(`[data-id="${id}"]`).parents('tr')).remove().draw();

@@ -65,7 +65,7 @@ namespace EmployeeApp.Repository
             }
         }
 
-        public virtual async Task<int> UpdateAsync(TEntity entity, CancellationToken token = default)
+        public virtual async Task<int> UpdateAsync(TEntity entity , bool saveChanges= true, CancellationToken token = default)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
@@ -73,6 +73,9 @@ namespace EmployeeApp.Repository
             try
             {
                 Entities.Update(entity);
+
+                if (!saveChanges) return 0;
+
                 return await _context.SaveChangesAsync(token).ConfigureAwait(false);
             }
             catch (DbUpdateException exception)
@@ -89,7 +92,9 @@ namespace EmployeeApp.Repository
             try
             {
                 Entities.Remove(entity);
+
                 if (!saveChanges) return 0;
+
                 return await _context.SaveChangesAsync(token).ConfigureAwait(false);
             }
             catch (DbUpdateException exception)
@@ -106,7 +111,9 @@ namespace EmployeeApp.Repository
             try
             {
                 Entities.RemoveRange(entities);
+
                 if (!saveChanges) return 0;
+                
                 return await _context.SaveChangesAsync(token).ConfigureAwait(false);
             }
             catch (DbUpdateException exception)

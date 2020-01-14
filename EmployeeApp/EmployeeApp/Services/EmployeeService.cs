@@ -48,30 +48,38 @@ namespace EmployeeApp.Services
                                                                         : null;
         }
 
-        public async Task<bool> UpdateAsync(Employee employee, CancellationToken token)
+        public async Task<bool> UpdateAsync(Employee employee, IEnumerable<Guid> deleteAttributesIds = null, CancellationToken token = default)
         {
             CheckForEmptyIds(employee);
 
-            return (await _employeeRepository.UpdateAsync(employee, token)
-                       .ConfigureAwait(false)) > 0;
+            var updateEmployes = _employeeRepository.UpdateAsync(employee,false, token);
 
+            var deleteAttributes = DeleteAttributes(deleteAttributesIds, token);
+
+            await Task.WhenAll(deleteAttributes, updateEmployes).ConfigureAwait(false);
+
+            return await _employeeRepository.SaveChangesAsync(token).ConfigureAwait(false) > 0;
         }
 
-        public async Task<bool> DeleteAsync(Employee employee, CancellationToken token)
+        public async Task<bool> DeleteAsync(Employee employee, CancellationToken token = default)
         {
             var deleteEmployee = _employeeRepository.DeleteAsync(employee, false, token);
 
-            var employeeAttributes = _attributeRepository.Table.Where(x =>
-                employee.EmployeeAttribute.Select(s => s.EmpAttrAttributeId).Contains(x.AttrId));
-
-            var deleteAttributes = _attributeRepository.DeleteAsync(employeeAttributes,false, token);
+            var deleteAttributes = DeleteAttributes(employee.EmployeeAttribute.Select(s => s.EmpAttrAttributeId), token);
 
             await Task.WhenAll(deleteAttributes, deleteEmployee).ConfigureAwait(false);
 
             return await _employeeRepository.SaveChangesAsync(token).ConfigureAwait(false) > 0;
         }
 
-        public async Task<string> GetEmployeNameById(Guid emId, CancellationToken token)
+        private Task<int> DeleteAttributes(IEnumerable<Guid> ids, CancellationToken token = default)
+        {
+            var employeeAttributes = _attributeRepository.Table.Where(x => ids.Contains(x.AttrId));
+
+            return _attributeRepository.DeleteAsync(employeeAttributes, false, token);
+        }
+
+        public async Task<string> GetEmployeNameById(Guid emId, CancellationToken token = default)
         {
             return (await GetById(emId, token).ConfigureAwait(false))?.EmpName;
         }

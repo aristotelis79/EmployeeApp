@@ -20,13 +20,13 @@ namespace EmployeeApp.Data.EntityTypeConfigurations
             builder.HasOne(d => d.EmpAttrAttribute)
                 .WithMany(p => p.EmployeeAttribute)
                 .HasForeignKey(d => d.EmpAttrAttributeId)
-                .OnDelete(DeleteBehavior.ClientCascade)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_EmployeeAttribute_Attribute");
 
             builder.HasOne(d => d.EmpAttrEmployee)
                 .WithMany(p => p.EmployeeAttribute)
                 .HasForeignKey(d => d.EmpAttrEmployeeId)
-                .OnDelete(DeleteBehavior.ClientCascade)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_EmployeeAttribute_Employee");
         }
     }

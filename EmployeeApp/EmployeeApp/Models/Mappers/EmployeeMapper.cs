@@ -74,7 +74,7 @@ namespace EmployeeApp.Models.Mappers
             return entity;
         }
 
-        public static Employee UpdateEmployeeEntity(this Employee entity, EmployeeViewModel model)
+        public static (Employee,List<Guid>) UpdateEmployeeEntity(this Employee entity, EmployeeViewModel model)
         {
             entity.EmpDateOfHire = model.EmpDateOfHire;
             entity.EmpName = model.EmpName;
@@ -119,7 +119,7 @@ namespace EmployeeApp.Models.Mappers
             }
 
             entity.EmployeeAttribute = (ICollection<EmployeeAttribute>)employeeAttributes;
-            return entity;
+            return (entity,deleteAttributesIds);
         }
     }
 }

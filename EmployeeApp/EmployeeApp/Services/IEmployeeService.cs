@@ -11,8 +11,8 @@ namespace EmployeeApp.Services
         Task<Employee> GetById(Guid id, CancellationToken token = default);
         Task<List<Employee>> GetAll(CancellationToken token = default);
         Task<Employee> InsertAsync(Employee employee,  CancellationToken token = default);
-        Task<bool> DeleteAsync(Employee entity, CancellationToken token);
-        Task<bool> UpdateAsync(Employee entity, CancellationToken token);
-        Task<string> GetEmployeNameById(Guid emId, CancellationToken token);
+        Task<bool> DeleteAsync(Employee entity, CancellationToken token = default);
+        Task<bool> UpdateAsync(Employee entity,  IEnumerable<Guid> deleteAttributesIds = null, CancellationToken token = default);
+        Task<string> GetEmployeNameById(Guid emId, CancellationToken token = default);
     }
 }
